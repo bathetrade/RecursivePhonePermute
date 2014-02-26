@@ -42,15 +42,28 @@ private:
 				cout << prefix << endl;
 		}
 	}
-public:
+
+	bool Init() {
+		return GetNumericString();
+	}
+
+	void PermuteString() {
+		if (len == 0) {
+			cout << "Empty string\n";
+			return;
+		}
+		string prefix(len, '\0');
+		RecursivePermute(prefix, 0);
+	}
+
 	bool GetNumericString() {
 		len = 0;
 		cout << "Enter a numeric string: ";
 		cin >> input;
+		cin.get();	//remove newline from cin
 		for (auto it = input.begin(); it != input.end(); ++it) {
 			if (isdigit(*it)) {
-				int digit = (*it) - '0';
-				if (digit < 2)
+				if (todigit((*it)) < 2)
 					return false;
 			}
 			else return false;
@@ -58,24 +71,18 @@ public:
 		len = input.length();
 		return true;
 	}
-	void PermuteString() {
-		if (len == 0) {
-			cout << "Empty string\n";
-			return;
-		}
-		string prefix(len, '\0');
-		RecursivePermute(prefix,0);
+public:
+	
+	bool Run() {
+		if (!Init())
+			return false;
+		PermuteString();
+		cin.get(); //wait for enter to be pressed
+		return true;
 	}
-
 };
 
 int main() {
 	MainApp Main;
-	if (!Main.GetNumericString()) {
-		cout << "Invalid input.\n";
-		return 0;
-	}
-	else Main.PermuteString();
-	cin.get(); cin.get();
-	return 0;
+	return Main.Run();
 }
