@@ -74,7 +74,6 @@ private:
 		return GetNumericString();
 	}
     
-    // Pass in a function to be called for each permutation
 	void PermuteString() {
 		if (_numLetterGroups == 0) {
 			cout << "Empty string\n";
