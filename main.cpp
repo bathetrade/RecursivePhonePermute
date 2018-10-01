@@ -69,16 +69,8 @@ private:
 		
 		return true;
 	}
-
-	bool Init() {
-		return GetNumericString();
-	}
     
 	void PermuteString() const {
-		if (_numLetterGroups == 0) {
-			cout << "Empty string\n";
-			return;
-		}
 		string permutation(_numLetterGroups, '\0');
 		RecursivePermute(permutation, 0);
 	}
@@ -99,7 +91,7 @@ private:
 		return true;
     }
     
-	bool GetNumericString() {
+	bool PromptUserForNumericString() {
 		cout << "Enter a numeric string: ";
 		cin >> _input;
 		cin.get();	//remove newline from cin
@@ -116,7 +108,7 @@ private:
 public:
 	
 	bool Run() {
-		if (!Init()) {
+		if (!PromptUserForNumericString()) {
 		    cerr << "Invalid input. Please enter a string consisting of the digits 2-9." << endl;
 			return false;
 		}
