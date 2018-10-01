@@ -74,7 +74,7 @@ private:
 		return GetNumericString();
 	}
     
-	void PermuteString() {
+	void PermuteString() const {
 		if (_numLetterGroups == 0) {
 			cout << "Empty string\n";
 			return;
