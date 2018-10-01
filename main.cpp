@@ -8,74 +8,120 @@ int todigit(char c) {
 	return c - '0';
 }
 
+// Maps numbers on a phone to letter groups. Example, "2" maps to "abc".
 class PhoneKeys {
 private:
-	vector<string> v;
+	vector<string> _v;
 public:
-	PhoneKeys() : v(8) {
-		v.assign({ "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz" });
+	PhoneKeys() : _v(8) {
+		_v.assign({ "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz" });
 	}
-	string& operator[](size_t index) {
-		return v.at(index - 2);
+	const string& operator[](size_t index) const {
+		return _v.at(index - 2);
 	}
 };
 
-// "78" = "pqrs" "tuv"  
 class MainApp {
 private:
-	PhoneKeys p;
-	string input;
-	size_t len;
+	PhoneKeys _phone;
+	string _input;
+	size_t _numLetterGroups = 0;
+    
+    /*  Terminology:
+        Assume the user enters "258". These numbers on a phone correspond to the 
+        letter groups "abc", "jkl", and "tuv", respectively.
+        "abc" has a letterGroupIndex of 0, "jkl" has a letterGroupIndex of 1, etc.
+        
+        Algorithm explanation:
+        The permutation algorithm runs like a nested loop, in the sense that the innermost loops
+        run more frequently than outer loops. Letter groups with a higher index are 
+        analogous to inner loops.
+        
+        For instance, in the example above with an input of "258", the output would be:
+        
+        ajt
+        aju
+        ajv
+        akt
+        aku
+        akv
+        
+        ...and so on. Notice that the last letter group "tuv" cycles more frequently
+        than the second, and the second cycles more frequently than the first.
 
-	bool RecursivePermute(string& prefix, size_t InputIndex) {
-		if (InputIndex == len)
+    */
+	bool RecursivePermute(string& permutation, size_t letterGroupIndex) const {
+	    bool finished = letterGroupIndex == _numLetterGroups;
+		if (finished) {
 			return false;
-		
-		int key = todigit(input[InputIndex]);
-		string KeyString = p[key];
-		int KeyStrLen = KeyString.length();
-		
-		//Loop through the key string and set the prefix from the key string
-		for (int i = 0; i < KeyStrLen; ++i) {
-			prefix[InputIndex] = KeyString[i];
-			if (!RecursivePermute(prefix, InputIndex + 1))
-				cout << prefix << endl;
 		}
+		
+		int currentPhoneNumber = todigit(_input[letterGroupIndex]);
+		string currentLetterGroup = _phone[currentPhoneNumber];
+		
+		//Loop through the letter group and set the permutation from it
+		for(const char letter : currentLetterGroup) {
+		    permutation[letterGroupIndex] = letter;
+		    if (!RecursivePermute(permutation, letterGroupIndex + 1)) {
+		        cout << permutation << endl;
+		    }
+		}
+		
+		return true;
 	}
 
 	bool Init() {
 		return GetNumericString();
 	}
-
+    
+    // Pass in a function to be called for each permutation
 	void PermuteString() {
-		if (len == 0) {
+		if (_numLetterGroups == 0) {
 			cout << "Empty string\n";
 			return;
 		}
-		string prefix(len, '\0');
-		RecursivePermute(prefix, 0);
+		string permutation(_numLetterGroups, '\0');
+		RecursivePermute(permutation, 0);
 	}
 
-	bool GetNumericString() {
-		len = 0;
-		cout << "Enter a numeric string: ";
-		cin >> input;
-		cin.get();	//remove newline from cin
-		for (auto it = input.begin(); it != input.end(); ++it) {
+    bool ValidateInput() const {
+        if (_input.length() == 0) {
+            return false;
+        }
+        
+		for (auto it = _input.begin(); it != _input.end(); ++it) {
 			if (isdigit(*it)) {
 				if (todigit((*it)) < 2)
 					return false;
 			}
 			else return false;
 		}
-		len = input.length();
+		
+		return true;
+    }
+    
+	bool GetNumericString() {
+		cout << "Enter a numeric string: ";
+		cin >> _input;
+		cin.get();	//remove newline from cin
+		
+		if (!ValidateInput()) {
+		    return false;
+		}
+		
+		_numLetterGroups = _input.length();
+		
 		return true;
 	}
+	
 public:
 	
 	bool Run() {
-		if (!Init())
+		if (!Init()) {
+		    cerr << "Invalid input. Please enter a string consisting of the digits 2-9." << endl;
 			return false;
+		}
+		
 		PermuteString();
 		cin.get(); //wait for enter to be pressed
 		return true;
